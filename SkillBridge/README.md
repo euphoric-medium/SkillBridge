@@ -1,16 +1,934 @@
-# React + Vite
+# SkillBridge --- AI Resume-to-Job Semantic Matching Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> **5th-Semester AI Project**
 
-Currently, two official plugins are available:
+SkillBridge is an AI-powered resume-to-job matching platform that
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+evaluates how well a candidate's resume fits a job description based on
 
-## React Compiler
+**semantic meaning**, rather than relying only on exact keyword matches.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+The goal is to address a common limitation of traditional ATS-style
 
-## Expanding the ESLint configuration
+keyword matching: qualified candidates may use different wording for the
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+same skill or experience and therefore be incorrectly ranked as a poor
+
+match.
+
+---
+
+## Project Vision
+
+Traditional resume screening often looks for exact words:
+
+```text
+
+Resume: "Built classification models using Python"
+
+Job Description: "Experience developing machine learning models"
+
+```
+
+A keyword-based system may see only a partial match.
+
+SkillBridge aims to understand that both statements are related in
+
+meaning by using **semantic embeddings** and similarity techniques.
+
+The intended flow is:
+
+```text
+
+Resume
+
+│
+
+▼
+
+Resume Parsing
+
+│
+
+▼
+
+Text / Skill Extraction
+
+│
+
+▼
+
+Semantic Embeddings
+
+│
+
+│
+
+Job Description ──► Text Processing ──► Semantic Embeddings
+
+│
+
+└────────────────────┬────────────────────┘
+
+                    ▼
+
+            Similarity Analysis
+
+                    │
+
+                    ▼
+
+             Match Explanation
+
+                    │
+
+                    ▼
+
+              React Frontend
+
+```
+
+---
+
+# Frontend
+
+The current phase of the project focuses on building the \*\*React
+
+frontend\*\*.
+
+The frontend is responsible for:
+
+- Providing a simple interface for uploading a resume
+
+- Accepting a job description
+
+- Sending the data for analysis
+
+- Showing analysis/loading states
+
+- Displaying the final compatibility score
+
+- Showing matched skills
+
+- Showing missing skills
+
+- Showing semantic matches
+
+- Providing useful recommendations
+
+The frontend will initially use **mock AI results** so that UI
+
+development can happen independently of the backend and ML pipeline.
+
+Once the backend is ready, the mock data will be replaced with API
+
+responses.
+
+---
+
+# Design Direction
+
+SkillBridge uses a **retro / early-web inspired visual style** rather
+
+than the typical modern AI SaaS aesthetic.
+
+### Design principles
+
+- Blue and white color palette
+
+- Fixed-width desktop-first layout
+
+- Simple rectangular components
+
+- Thin borders
+
+- Serif/bold headings
+
+- Minimal shadows and gradients
+
+- Clean information hierarchy
+
+- Functional rather than decorative UI
+
+- Responsive behavior for smaller screens
+
+The intention is to combine a recognizable retro web identity with
+
+modern usability.
+
+---
+
+# User Flow
+
+The primary frontend flow is:
+
+```text
+
+Landing Page
+
+ │
+
+ ▼
+
+Matcher Page
+
+ │
+
+ ├── Upload Resume
+
+ │
+
+ ├── Enter Job Description
+
+ │
+
+ └── Analyze Match
+
+         │
+
+         ▼
+
+    Loading State
+
+         │
+
+         ▼
+
+    Results Page
+
+         │
+
+         ├── Match Score
+
+         ├── Matched Skills
+
+         ├── Missing Skills
+
+         ├── Semantic Matches
+
+         └── Recommendations
+
+```
+
+---
+
+# Frontend Structure
+
+The planned React structure is:
+
+```text
+
+src/
+
+│
+
+├── components/
+
+│   ├── Navbar.jsx
+
+│   ├── Hero.jsx
+
+│   ├── ResumeUploader.jsx
+
+│   ├── JobDescriptionInput.jsx
+
+│   ├── AnalyzeButton.jsx
+
+│   ├── LoadingState.jsx
+
+│   ├── MatchScore.jsx
+
+│   ├── SkillsSection.jsx
+
+│   ├── MissingSkills.jsx
+
+│   ├── SemanticMatches.jsx
+
+│   └── Recommendations.jsx
+
+│
+
+├── pages/
+
+│   ├── Home.jsx
+
+│   ├── Matcher.jsx
+
+│   └── Results.jsx
+
+│
+
+├── services/
+
+│   └── api.js
+
+│
+
+├── hooks/
+
+│   └── useMatcher.js
+
+│
+
+├── App.jsx
+
+└── main.jsx
+
+```
+
+## Component Responsibilities
+
+### `Navbar.jsx`
+
+Contains the main site navigation.
+
+Expected navigation:
+
+```text
+
+Home | Match Resume | How It Works | About | Log In
+
+```
+
+---
+
+### `Hero.jsx`
+
+Introduces SkillBridge and explains the core value proposition.
+
+Example:
+
+> **Match your resume to the right job.**\
+
+> Understand your compatibility beyond keywords.
+
+---
+
+### `ResumeUploader.jsx`
+
+Responsible for resume input.
+
+Planned functionality:
+
+- PDF/DOCX selection
+
+- Drag and drop
+
+- File validation
+
+- Filename display
+
+- File removal
+
+- File size display
+
+---
+
+### `JobDescriptionInput.jsx`
+
+Provides a text area where the user can paste a job description.
+
+Future versions may support:
+
+- Job-description file upload
+
+- Job URL input
+
+These are not part of the initial MVP.
+
+---
+
+### `AnalyzeButton.jsx`
+
+Starts the matching process after validating that the required inputs
+
+are available.
+
+---
+
+### `LoadingState.jsx`
+
+Displays the processing state while the AI pipeline is running.
+
+Example stages:
+
+```text
+
+Reading resume...
+
+    ↓
+
+Understanding job requirements...
+
+    ↓
+
+Generating semantic representations...
+
+    ↓
+
+Calculating compatibility...
+
+```
+
+---
+
+### `MatchScore.jsx`
+
+Displays the overall resume-to-job compatibility score.
+
+Example:
+
+```text
+
+82%
+
+Strong Match
+
+```
+
+The score should eventually be generated by the backend rather than
+
+hard-coded in the frontend.
+
+---
+
+### `SkillsSection.jsx`
+
+Displays skills identified in both the resume and job description and
+
+highlights relevant matches.
+
+---
+
+### `MissingSkills.jsx`
+
+Displays relevant skills or requirements identified in the job
+
+description that are not sufficiently represented in the resume.
+
+---
+
+### `SemanticMatches.jsx`
+
+This is one of the most important components for demonstrating the AI
+
+aspect of SkillBridge.
+
+It can show relationships such as:
+
+```text
+
+Resume:
+
+"Built classification models using Python"
+
+Job:
+
+"Experience developing machine learning models"
+
+Semantic Similarity:
+
+94%
+
+```
+
+This helps demonstrate that SkillBridge is doing more than simple
+
+keyword comparison.
+
+---
+
+### `Recommendations.jsx`
+
+Provides actionable suggestions based on the comparison.
+
+Example:
+
+```text
+
+• Highlight your machine learning projects.
+
+• Mention relevant API development experience.
+
+• Add Docker experience if applicable.
+
+```
+
+Recommendations should eventually be generated from actual analysis
+
+results.
+
+---
+
+# Pages
+
+## `Home.jsx`
+
+The landing page.
+
+Responsibilities:
+
+- Introduce SkillBridge
+
+- Explain semantic matching
+
+- Provide a call-to-action
+
+- Link users to the matcher
+
+---
+
+## `Matcher.jsx`
+
+The primary input page.
+
+Contains:
+
+```text
+
+ResumeUploader
+
+    \+
+
+JobDescriptionInput
+
+    \+
+
+AnalyzeButton
+
+```
+
+The page should manage the state of the user's inputs and initiate the
+
+analysis process.
+
+---
+
+## `Results.jsx`
+
+Displays the output of the matching process.
+
+Planned sections:
+
+```text
+
+Resume Compatibility Report
+
+    82%
+
+Strong Match
+
+Matched Skills       Missing Skills
+
+Semantic Matches
+
+Recommendations
+
+```
+
+---
+
+# API Layer
+
+Frontend API communication should be kept separate from UI components.
+
+```text
+
+services/
+
+└── api.js
+
+```
+
+The frontend should eventually communicate with a backend endpoint
+
+similar to:
+
+```text
+
+POST /api/match
+
+```
+
+The request will contain:
+
+```text
+
+resume file
+
+job description
+
+```
+
+The backend will return structured analysis data.
+
+Example response:
+
+```json
+{
+  "match_score": 82,
+
+  "matched_skills": ["Python", "Machine Learning", "SQL", "React"],
+
+  "missing_skills": ["Docker", "AWS"],
+
+  "semantic_matches": [
+    {
+      "resume\_text": "Built ML classification models",
+
+      "job\_text": "Experience developing machine learning models",
+
+      "similarity": 0.94
+    }
+  ],
+
+  "recommendations": [
+    "Highlight your machine learning projects",
+
+    "Mention REST API development experience"
+  ]
+}
+```
+
+The exact API contract will be finalized when the backend is
+
+implemented.
+
+---
+
+# Development Strategy
+
+The frontend will be developed in stages.
+
+## Phase 1 --- UI Foundation
+
+- Set up React/Vite
+
+- Establish global styling
+
+- Build navbar
+
+- Build page layout
+
+- Establish colors, typography, borders and spacing
+
+## Phase 2 --- Matcher
+
+Build:
+
+```text
+
+ResumeUploader
+
+JobDescriptionInput
+
+AnalyzeButton
+
+```
+
+The complete input flow should work before connecting the real backend.
+
+## Phase 3 --- Results
+
+Build:
+
+```text
+
+MatchScore
+
+SkillsSection
+
+MissingSkills
+
+SemanticMatches
+
+Recommendations
+
+```
+
+Use mock JSON data during this stage.
+
+## Phase 4 --- API Integration
+
+Replace mock data with real backend responses.
+
+```text
+
+React
+
+↓
+
+HTTP Request
+
+↓
+
+Backend
+
+↓
+
+AI / ML Pipeline
+
+↓
+
+JSON Response
+
+↓
+
+React Results Page
+
+```
+
+## Phase 5 --- Polish
+
+- Responsive design
+
+- Error handling
+
+- Input validation
+
+- Loading states
+
+- Accessibility
+
+- UI consistency
+
+- Performance improvements
+
+---
+
+# Why Mock Data First?
+
+Frontend and backend development should happen independently.
+
+Instead of waiting for the AI system to be finished:
+
+```text
+
+Frontend
+
+↓
+
+Mock JSON
+
+↓
+
+Complete Results UI
+
+```
+
+Then later:
+
+```text
+
+Frontend
+
+↓
+
+Real API
+
+↓
+
+AI Results
+
+```
+
+This allows the two-person team to work in parallel and makes debugging
+
+much easier.
+
+---
+
+# Planned Technology Stack
+
+## Frontend
+
+- React
+
+- Vite
+
+- JavaScript
+
+- CSS / Tailwind CSS
+
+- React Router
+
+## Backend
+
+Planned:
+
+- Python
+
+- FastAPI
+
+## AI / ML
+
+Potential components:
+
+- Resume text extraction
+
+- Natural Language Processing
+
+- Semantic embedding model
+
+- Cosine similarity / vector similarity
+
+- Skill and requirement extraction
+
+The exact model and libraries will be finalized during the AI/ML
+
+implementation phase.
+
+---
+
+# MVP Scope
+
+The initial MVP will focus on one core task:
+
+> **Upload one resume and compare it against one job description.**
+
+The MVP should provide:
+
+- Resume upload
+
+- Job description input
+
+- Semantic matching
+
+- Overall match score
+
+- Matched skills
+
+- Missing skills
+
+- Semantic match examples
+
+- Recommendations
+
+Features such as authentication, saved resumes, multiple-job comparison,
+
+job scraping, user profiles and advanced analytics can be considered
+
+after the core system works.
+
+---
+
+# Future Features
+
+Possible future improvements:
+
+- Multiple job comparisons
+
+- Resume improvement suggestions
+
+- Job recommendations
+
+- Resume version management
+
+- User accounts
+
+- Match history
+
+- Job URL parsing
+
+- Resume keyword/semantic gap analysis
+
+- Skill-gap learning recommendations
+
+- Recruiter dashboard
+
+- Analytics
+
+- Explainable AI visualizations
+
+These features are **not part of the initial MVP**.
+
+---
+
+# Project Goal
+
+SkillBridge is not intended to simply produce a percentage.
+
+The larger goal is to answer:
+
+> **"Why is this resume a good or bad match for this job?"**
+
+The frontend should therefore prioritize **explainability** alongside
+
+the overall match score.
+
+A successful version of SkillBridge should allow a user to understand:
+
+```text
+
+How well do I match?
+
+    \+
+
+What skills match?
+
+    \+
+
+What am I missing?
+
+    \+
+
+Which parts of my experience are semantically relevant?
+
+    \+
+
+What can I improve?
+
+```
+
+---
+
+# Current Status
+
+### Frontend
+
+- [x] React project initialized
+
+- [ ] Design system finalized
+
+- [ ] Landing page
+
+- [ ] Matcher page
+
+- [ ] Resume uploader
+
+- [ ] Job description input
+
+- [ ] Loading state
+
+- [ ] Results page
+
+- [ ] Mock AI results
+
+- [ ] Backend API integration
+
+### AI / Backend
+
+- [ ] Resume parser
+
+- [ ] Job-description parser
+
+- [ ] Embedding pipeline
+
+- [ ] Similarity calculation
+
+- [ ] Skill extraction
+
+- [ ] Match explanation
+
+- [ ] Recommendation generation
+
+- [ ] API endpoint
+
+---
+
+# License
+
+This project is developed by-
+
+- [Shashwat Shukla](https://github.com/euphoric-medium)
+- [Krishna Gupta](https://github.com/Krishnalikescoding)
