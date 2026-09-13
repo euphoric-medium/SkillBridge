@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
-
+import { Link } from 'react-router-dom'; // when the user clicks on the start matching , this takes them to that 
+                                         // Link is designed for navigation inside a React application without doing a full browser page reload.
 function Header() {
   return (
     <header className="site-header">
